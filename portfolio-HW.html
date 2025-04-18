@@ -1,0 +1,259 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Homework Hub | Tahsin Siddik</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+    }
+    header {
+      background: linear-gradient(315deg, #6a11cb, #2575fc);
+      color: white;
+      padding: 15px;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      justify-content: center;
+      background-color: #ffffffcc;
+      padding: 10px 0;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    nav a {
+      margin: 0 15px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #333;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    nav a.active, nav a:hover {
+      background-color: #2575fc;
+      color: white;
+    }
+    .section {
+      display: none;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      margin-top: 20px;
+    }
+    .homework-item {
+      background: #f3f9ff;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-left: 4px solid #2575fc;
+      border-radius: 5px;
+      position: relative;
+    }
+    .homework-item a {
+      margin-right: 8px;
+      color: #2575fc;
+      text-decoration: underline;
+    }
+    .delete-btn {
+      position: absolute;
+      right: 10px;
+      top: 10px;
+      background: #ff4d4d;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background: #cc0000;
+    }
+    form input, form textarea, form button {
+      display: block;
+      width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    form button {
+      background-color: #2575fc;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .file-input-container {
+      margin-bottom: 15px;
+    }
+    .file-input-container input {
+      margin-bottom: 10px;
+    }
+    .add-file-btn {
+      background-color: #4caf50;
+      color: white;
+      padding: 8px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: auto;
+      display: inline-block;
+    }
+    .add-file-btn:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Homework Hub</h1>
+    <p>by Tahsin Siddik</p>
+  </header>
+
+  <nav>
+    <a href="#" onclick="showSection('home')" class="active">Home</a>
+    <a href="#" onclick="showSection('upload')">Upload</a>
+    <a href="#" onclick="showSection('all')">All Homework</a>
+    <a href="#" onclick="showSection('about')">About</a>
+  </nav>
+
+  <!-- Home Page -->
+  <div class="section" id="home" style="display: block;">
+    <h2>Welcome to Homework Hub</h2>
+    <p>This is your personal homework tracker and uploader for your digital marketing journey!</p>
+    <p><strong>Total Homework Entries:</strong> <span id="totalCount">0</span></p>
+  </div>
+
+  <!-- Upload Page -->
+  <div class="section" id="upload">
+    <h2>Upload New Homework</h2>
+    <form id="homeworkForm">
+      <input type="text" id="title" placeholder="Title" required>
+      <textarea id="description" placeholder="Description" rows="3" required></textarea>
+      <input type="date" id="date" required>
+      <div class="file-input-container" id="fileInputs">
+        <input type="file" class="file-input" accept=".pdf,.doc,.docx,.jpg,.png,.txt,.zip"/>
+      </div>
+      <button type="button" class="add-file-btn" onclick="addFileInput()">Add Another File</button>
+      <button type="submit">Add Homework</button>
+    </form>
+  </div>
+
+  <!-- All Homework Page -->
+  <div class="section" id="all">
+    <h2>All Homework</h2>
+    <div id="homeworkList"></div>
+  </div>
+
+  <!-- About Page -->
+  <div class="section" id="about">
+    <h2>About</h2>
+    <p>This is a personal homework management tool created by <strong>Tahsin Siddik</strong> for practicing digital marketing, coding and consistency.</p>
+  </div>
+
+  <script>
+    // Navigation logic
+    function showSection(id) {
+      document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+      document.getElementById(id).style.display = 'block';
+      document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+      event.target.classList.add('active');
+      if (id === 'all') loadHomeworkList();
+      if (id === 'home') updateCount();
+    }
+
+    function addFileInput() {
+      const fileInputContainer = document.getElementById('fileInputs');
+      const newInput = document.createElement('input');
+      newInput.type = 'file';
+      newInput.className = 'file-input';
+      newInput.accept = '.pdf,.doc,.docx,.jpg,.png,.txt,.zip';
+      fileInputContainer.appendChild(newInput);
+    }
+
+    const form = document.getElementById('homeworkForm');
+    const homeworkList = document.getElementById('homeworkList');
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const title = document.getElementById('title').value;
+      const description = document.getElementById('description').value;
+      const date = document.getElementById('date').value;
+      const fileInputs = document.querySelectorAll('.file-input');
+
+      const fileURLs = [];
+      fileInputs.forEach(input => {
+        if (input.files[0]) {
+          fileURLs.push(URL.createObjectURL(input.files[0]));
+        }
+      });
+
+      if (fileURLs.length === 0) {
+        alert("Please upload at least one file.");
+        return;
+      }
+
+      const newHomework = { title, description, files: fileURLs };
+
+      const saved = JSON.parse(localStorage.getItem('homeworks')) || {};
+      if (!saved[date]) saved[date] = [];
+      saved[date].push(newHomework);
+      localStorage.setItem('homeworks', JSON.stringify(saved));
+
+      alert("Homework added!");
+      form.reset();
+      document.getElementById('fileInputs').innerHTML = '<input type="file" class="file-input" accept=".pdf,.doc,.docx,.jpg,.png,.txt,.zip"/>';
+    });
+
+    function loadHomeworkList() {
+      homeworkList.innerHTML = '';
+      const saved = JSON.parse(localStorage.getItem('homeworks')) || {};
+      Object.keys(saved).sort().reverse().forEach(date => {
+        const group = document.createElement('div');
+        group.innerHTML = `<h3>${date}</h3>`;
+        saved[date].forEach((hw, index) => {
+          const item = document.createElement('div');
+          item.className = 'homework-item';
+          let links = '';
+          hw.files.forEach((file, i) => {
+            links += `<a href="${file}" target="_blank">File ${i + 1}</a>`;
+          });
+          item.innerHTML = `<strong>${hw.title}</strong><p>${hw.description}</p>${links}<button class="delete-btn" onclick="deleteHomework('${date}', ${index})">Delete</button>`;
+          group.appendChild(item);
+        });
+        homeworkList.appendChild(group);
+      });
+    }
+
+    function deleteHomework(date, index) {
+      if (confirm('Are you sure you want to delete this homework?')) {
+        const saved = JSON.parse(localStorage.getItem('homeworks')) || {};
+        saved[date].splice(index, 1);
+        if (saved[date].length === 0) delete saved[date];
+        localStorage.setItem('homeworks', JSON.stringify(saved));
+        loadHomeworkList();
+        updateCount();
+      }
+    }
+
+    function updateCount() {
+      const saved = JSON.parse(localStorage.getItem('homeworks')) || {};
+      let count = 0;
+      Object.values(saved).forEach(arr => count += arr.length);
+      document.getElementById('totalCount').textContent = count;
+    }
+
+    updateCount();
+  </script>
+
+</body>
+</html>
+```
